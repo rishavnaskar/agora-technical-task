@@ -34,7 +34,19 @@ class _AuthScreenState extends State<AuthScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                AppName(common: _common, fontSize: 40),
+                Column(
+                  children: [
+                    AppName(common: _common, fontSize: 40),
+                    SizedBox(height: 14),
+                    Text(
+                      "A Dating app where you bring your pets too!",
+                      style: TextStyle(
+                        fontFamily: "Nexa",
+                        color: Colors.grey,
+                      ),
+                    )
+                  ],
+                ),
                 Lottie.asset(
                   "assets/auth.json",
                   fit: BoxFit.contain,
