@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "820784959909",
+    "project_id": "agora-technical-task",
+    "storage_bucket": "agora-technical-task.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:820784959909:android:a997bfab5fe34e4989584c",
+        "android_client_info": {
+          "package_name": "com.rishav.fourleggedlove"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "820784959909-ebb9gfsqe458fue4cvjb2gidhuhl6opq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.rishav.fourleggedlove",
+            "certificate_hash": "62ed11ed1e88d582abe7306e8aa84a59e9a2fe12"
+          }
+        },
+        {
+          "client_id": "820784959909-tdmclo0kvmod3g08g2ipl4m5otsjlvat.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDZkYpTCc9DsOJqsLRwjQKcH5Gvx2YhybY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "820784959909-tdmclo0kvmod3g08g2ipl4m5otsjlvat.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

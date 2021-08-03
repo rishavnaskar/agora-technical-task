@@ -1,4 +1,4 @@
-package com.example.fourleggedlove
+package com.rishav.fourleggedlove
 
 import io.flutter.embedding.android.FlutterActivity
 
