@@ -20,6 +20,7 @@ dependencies:
   flutter_signin_button: ^2.0.0
   google_sign_in: ^5.0.7
   modal_progress_hud_nsn: ^0.1.0-nullsafety-1
+  cloud_firestore: ^2.4.0
 
 dev_dependencies:
   flutter_test:

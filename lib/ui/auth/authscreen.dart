@@ -44,7 +44,9 @@ class _AuthScreenState extends State<AuthScreen> {
                   Buttons.Google,
                   onPressed: () {
                     setState(() => _isLoading = true);
-                    return _googleAuth.signInWithGoogle();
+                    _googleAuth
+                        .signInWithGoogle()
+                        .then((value) => _googleAuth.signInUser());
                   },
                   elevation: 10,
                   padding: EdgeInsets.only(left: 30),
