@@ -18,6 +18,17 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: _common.background,
+        elevation: 0,
+        title: Text(
+          "Active Users",
+          style: TextStyle(
+            color: _common.blue,
+            fontFamily: "Nexa",
+          ),
+        ),
+      ),
       backgroundColor: _common.background,
       body: SafeArea(
         child: Container(
@@ -27,7 +38,6 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 30),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -49,16 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ],
               ),
-              SizedBox(height: 30),
-              Text(
-                "Active Users",
-                style: TextStyle(
-                  color: _common.blue,
-                  fontSize: 20,
-                  fontFamily: "Nexa",
-                ),
-              ),
-              SizedBox(height: 30),
+              SizedBox(height: 10),
               Expanded(
                 child: StreamBuilder<QuerySnapshot>(
                   stream: FirebaseFirestore.instance

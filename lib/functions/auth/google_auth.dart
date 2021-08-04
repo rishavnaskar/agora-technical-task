@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fourleggedlove/utils/constants.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 
 class GoogleAuth {
   Future<UserCredential> signInWithGoogle() async {
@@ -27,11 +29,15 @@ class GoogleAuth {
           .get();
 
       if (matchedUsers.docs.isEmpty)
-        instance.collection("users").add({
+        instance.collection("users").doc(currentUser.email).set({
           "email": currentUser.email,
           "name": currentUser.displayName,
           "avatarUrl": currentUser.photoURL,
         });
+      else {
+        StreamingSharedPreferences prefs = await StreamingSharedPreferences.instance;
+        prefs.setBool(profileVisited, true);
+      }
     }
   }
 }
