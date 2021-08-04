@@ -1,8 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fourleggedlove/utils/common.dart';
+import 'package:fourleggedlove/utils/constants.dart';
 import 'package:lottie/lottie.dart';
+import 'dart:math';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -17,6 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
+    final width = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: _common.background,
@@ -78,88 +82,73 @@ class _HomeScreenState extends State<HomeScreen> {
                     if (snapshot.hasData) {
                       List documents = snapshot.data!.docs;
                       if (documents.isEmpty)
-                        return Text(
-                          "No active users found",
-                          style: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 16,
-                            fontFamily: "Poppins",
+                        return Center(
+                          child: Text(
+                            "No active users found",
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 16,
+                              fontFamily: "Poppins",
+                            ),
                           ),
                         );
                       else {
-                        return ListView.builder(
+                        return ListView.separated(
                           itemCount: documents.length,
-                          addAutomaticKeepAlives: true,
+                          separatorBuilder: (context, index) => Divider(),
                           itemBuilder: (context, index) => Container(
                             padding: EdgeInsets.all(20),
                             decoration: BoxDecoration(
-                              border: Border.all(
-                                color: Colors.grey[350]!,
-                                width: 0.5,
-                              ),
+                              color: Color(0xff31343c),
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            child: Row(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Flexible(
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(10),
-                                    child: Image.network(
-                                      documents[index]["avatarUrl"],
-                                      fit: BoxFit.contain,
-                                      loadingBuilder: (BuildContext context,
-                                          Widget child,
-                                          ImageChunkEvent? loadingProgress) {
-                                        if (loadingProgress == null) {
-                                          return child;
-                                        }
-                                        return Center(
-                                          child: CircularProgressIndicator(
-                                            valueColor:
-                                                AlwaysStoppedAnimation<Color>(
-                                              _common.blue,
-                                            ),
-                                            value: loadingProgress
-                                                        .expectedTotalBytes !=
-                                                    null
-                                                ? loadingProgress
-                                                        .cumulativeBytesLoaded /
-                                                    loadingProgress
-                                                        .expectedTotalBytes!
-                                                : null,
-                                          ),
-                                        );
-                                      },
-                                    ),
+                                ListHeadingRowWidget(
+                                  documents: documents,
+                                  common: _common,
+                                  index: index,
+                                ),
+                                SizedBox(height: 20),
+                                Text(
+                                  subtitleText[Random().nextInt(3)],
+                                  textAlign: TextAlign.start,
+                                  style: TextStyle(
+                                    color: Colors.grey[350],
+                                    fontFamily: "Poppins",
+                                    fontSize: 14,
                                   ),
                                 ),
-                                SizedBox(width: 30),
-                                Flexible(
-                                  flex: 2,
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        documents[index]["name"],
-                                        style: TextStyle(
-                                          color: _common.purple,
-                                          fontSize: 16,
-                                          fontFamily: "Nexa",
-                                        ),
-                                      ),
-                                      SizedBox(height: 10),
-                                      Text(
-                                        documents[index]["email"],
-                                        style: TextStyle(
-                                          color: _common.purple,
-                                          fontSize: 16,
-                                          fontFamily: "Nexa",
-                                        ),
-                                      ),
-                                    ],
+                                SizedBox(height: 10),
+                                ImagesWidget(
+                                  height: height,
+                                  documents: documents,
+                                  width: width,
+                                  index: index,
+                                ),
+                                SizedBox(height: 20),
+                                Text(
+                                  "More about me",
+                                  textAlign: TextAlign.start,
+                                  style: TextStyle(
+                                    color: Colors.grey[350],
+                                    fontFamily: "Poppins",
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
                                   ),
-                                )
+                                ),
+                                Text(
+                                  documents[index]["bio"],
+                                  textAlign: TextAlign.start,
+                                  maxLines: 3,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: _common.purple,
+                                    fontFamily: "Poppins",
+                                    fontSize: 14,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -172,6 +161,149 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  List<String> subtitleText = [
+    "Check out my cuties! 😍",
+    "This is how my babies look like ☺",
+    "Aren\'t they so adorable? 🥰"
+  ];
+}
+
+class ListHeadingRowWidget extends StatelessWidget {
+  const ListHeadingRowWidget({
+    Key? key,
+    required this.documents,
+    required Common common,
+    required this.index,
+  })  : _common = common,
+        super(key: key);
+
+  final List documents;
+  final Common _common;
+  final int index;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        CircleAvatar(
+          backgroundImage: NetworkImage(
+            documents[index]["avatarUrl"],
+          ),
+        ),
+        SizedBox(width: 20),
+        Text(
+          documents[index]["name"],
+          style: TextStyle(
+            color: _common.purpleLight,
+            fontFamily: "Poppins",
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        Spacer(),
+        IconButton(
+          onPressed: () async {
+            final res = await FirebaseFirestore.instance
+                .collection("users")
+                .doc(documents[index]["email"])
+                .get();
+            if (res.data()!.containsKey(inCallWith)) {
+              if (res[inCallWith] != FirebaseAuth.instance.currentUser!.email) {
+                navigateToCallPage(res);
+              } else
+                _common.displayToast("User already in a call", context);
+            } else
+              navigateToCallPage(res);
+          },
+          icon: Icon(CupertinoIcons.videocam),
+          color: _common.blue,
+          iconSize: 34,
+          enableFeedback: true,
+          tooltip: "Video call button",
+        ),
+      ],
+    );
+  }
+
+  navigateToCallPage(DocumentSnapshot<Map<String, dynamic>> res) {
+    const String _chars = 'abcdefghijklmnopqrstuvwxyz';
+    Random _rnd = Random();
+    final String channel = String.fromCharCodes(
+      Iterable.generate(
+        6,
+        (_) => _chars.codeUnitAt(
+          _rnd.nextInt(_chars.length),
+        ),
+      ),
+    );
+
+    res.reference.update({
+      inCallWith: FirebaseAuth.instance.currentUser!.email,
+      channelName: channel,
+    }).whenComplete(
+      () => FirebaseFirestore.instance
+          .collection("users")
+          .doc(FirebaseAuth.instance.currentUser!.email)
+          .update({
+        inCallWith: res.id,
+        channelName: channel,
+      }),
+    );
+  }
+}
+
+class ImagesWidget extends StatelessWidget {
+  const ImagesWidget({
+    Key? key,
+    required this.height,
+    required this.documents,
+    required this.width,
+    required this.index,
+  }) : super(key: key);
+
+  final double height;
+  final List documents;
+  final double width;
+  final int index;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Container(
+        height: height * 0.2,
+        child: ListView.separated(
+          shrinkWrap: true,
+          scrollDirection: Axis.horizontal,
+          itemBuilder: (context, i) => ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Image.network(
+              documents[index]["images"][i],
+              fit: BoxFit.fill,
+              height: height * 0.3,
+              width: width * 0.3,
+              loadingBuilder: (BuildContext context, Widget child,
+                  ImageChunkEvent? loadingProgress) {
+                if (loadingProgress == null) {
+                  return child;
+                }
+                return Center(
+                  child: CircularProgressIndicator(
+                    value: loadingProgress.expectedTotalBytes != null
+                        ? loadingProgress.cumulativeBytesLoaded /
+                            loadingProgress.expectedTotalBytes!
+                        : null,
+                  ),
+                );
+              },
+            ),
+          ),
+          separatorBuilder: (context, i) => SizedBox(width: 10),
+          itemCount: documents[index]["images"].length,
         ),
       ),
     );
