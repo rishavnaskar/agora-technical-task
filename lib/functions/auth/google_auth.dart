@@ -22,22 +22,25 @@ class GoogleAuth {
   Future signInUser() async {
     final currentUser = FirebaseAuth.instance.currentUser;
     final instance = FirebaseFirestore.instance;
+    StreamingSharedPreferences prefs =
+        await StreamingSharedPreferences.instance;
     if (currentUser != null) {
       final matchedUsers = await instance
           .collection("users")
           .where("email", isEqualTo: currentUser.email)
           .get();
 
-      if (matchedUsers.docs.isEmpty)
+      if (matchedUsers.docs.isEmpty) {
         instance.collection("users").doc(currentUser.email).set({
           "email": currentUser.email,
           "name": currentUser.displayName,
           "avatarUrl": currentUser.photoURL,
+          inCallWith: "",
+          channelName: "",
         });
-      else {
-        StreamingSharedPreferences prefs = await StreamingSharedPreferences.instance;
-        prefs.setBool(profileVisited, true);
-      }
+        prefs.setInt(profileVisited, 0);
+      } else
+        prefs.setInt(profileVisited, 1);
     }
   }
 }

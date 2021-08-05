@@ -2,10 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fourleggedlove/functions/api/ApiService.dart';
+import 'package:fourleggedlove/ui/call/call.dart';
+import 'package:fourleggedlove/ui/utils/error.dart';
 import 'package:fourleggedlove/utils/common.dart';
 import 'package:fourleggedlove/utils/constants.dart';
 import 'package:lottie/lottie.dart';
 import 'dart:math';
+import 'package:permission_handler/permission_handler.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -16,6 +20,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final Common _common = Common();
+  final ApiService _apiService = ApiService();
 
   @override
   Widget build(BuildContext context) {
@@ -75,12 +80,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting)
                       return Center(child: _common.progressIndicator());
-                    if (snapshot.hasError)
-                      return Center(
-                        child: Icon(Icons.error, color: _common.blue),
-                      );
+                    if (snapshot.hasError) return ErrorScreen();
                     if (snapshot.hasData) {
                       List documents = snapshot.data!.docs;
+
                       if (documents.isEmpty)
                         return Center(
                           child: Text(
@@ -109,6 +112,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   documents: documents,
                                   common: _common,
                                   index: index,
+                                  ref: snapshot.data!.docs[index].reference,
+                                  apiService: _apiService,
                                 ),
                                 SizedBox(height: 20),
                                 Text(
@@ -179,12 +184,16 @@ class ListHeadingRowWidget extends StatelessWidget {
     required this.documents,
     required Common common,
     required this.index,
+    required this.ref,
+    required this.apiService,
   })  : _common = common,
         super(key: key);
 
   final List documents;
   final Common _common;
   final int index;
+  final DocumentReference<Object?> ref;
+  final ApiService apiService;
 
   @override
   Widget build(BuildContext context) {
@@ -213,14 +222,32 @@ class ListHeadingRowWidget extends StatelessWidget {
                 .doc(documents[index]["email"])
                 .get();
             if (res.data()!.containsKey(inCallWith)) {
-              if (res[inCallWith] != FirebaseAuth.instance.currentUser!.email) {
-                navigateToCallPage(res);
-              } else
-                _common.displayToast("User already in a call", context);
+              if ((res[inCallWith] as String).isEmpty)
+                return navigateToCallPage(res, context);
+              else if (res[inCallWith] !=
+                  FirebaseAuth.instance.currentUser!.email)
+                return _common.displayToast("User already in a call", context);
             } else
-              navigateToCallPage(res);
+              return navigateToCallPage(res, context);
           },
-          icon: Icon(CupertinoIcons.videocam),
+          icon: (documents[index][inCallWith] != null &&
+                  documents[index][inCallWith] ==
+                      FirebaseAuth.instance.currentUser!.email)
+              ? InkWell(
+                  onTap: () async {
+                    final res = await FirebaseFirestore.instance
+                        .collection("users")
+                        .doc(documents[index]["email"])
+                        .get();
+                    // get channel name and navigate to channel page
+                    navigateToCallPage(res, context);
+                  },
+                  child: Ink(
+                    child: Lottie.asset("assets/incoming_call.json",
+                        fit: BoxFit.contain),
+                  ),
+                )
+              : Icon(CupertinoIcons.videocam),
           color: _common.blue,
           iconSize: 34,
           enableFeedback: true,
@@ -230,18 +257,20 @@ class ListHeadingRowWidget extends StatelessWidget {
     );
   }
 
-  navigateToCallPage(DocumentSnapshot<Map<String, dynamic>> res) {
-    const String _chars = 'abcdefghijklmnopqrstuvwxyz';
-    Random _rnd = Random();
-    final String channel = String.fromCharCodes(
-      Iterable.generate(
-        6,
-        (_) => _chars.codeUnitAt(
-          _rnd.nextInt(_chars.length),
-        ),
-      ),
-    );
-
+  navigateToCallPage(
+      DocumentSnapshot<Map<String, dynamic>> res, BuildContext context) {
+    if (_handleCameraAndMic() == Future.value(false)) {
+      _common.displayToast("Permissions not given", context);
+      return;
+    }
+    late final String channel;
+    if (res.data() != null) {
+      if ((res.get("channelName") as String).isEmpty)
+        channel = getChannelName();
+      else
+        channel = res.get("channelName");
+    } else
+      channel = getChannelName();
     res.reference.update({
       inCallWith: FirebaseAuth.instance.currentUser!.email,
       channelName: channel,
@@ -252,8 +281,51 @@ class ListHeadingRowWidget extends StatelessWidget {
           .update({
         inCallWith: res.id,
         channelName: channel,
-      }),
+      }).whenComplete(
+        () async {
+          apiService.createAgoraToken(channel).then((value) {
+            final String? token = value["token"];
+            if (token != null)
+              Navigator.push(
+                context,
+                CupertinoPageRoute(
+                  builder: (context) => CallScreen(
+                    channelName: channel,
+                    token: token,
+                    res: res,
+                  ),
+                ),
+              );
+            else
+              print("ERROR FETCHING TOKEN");
+          });
+        },
+      ),
     );
+  }
+
+  Future<bool> _handleCameraAndMic() async {
+    final PermissionStatus camera = await Permission.camera.request();
+    final PermissionStatus microphone = await Permission.microphone.request();
+
+    if (camera.isGranted && microphone.isGranted)
+      return Future.value(true);
+    else
+      return Future.value(false);
+  }
+
+  String getChannelName() {
+    const String _chars = 'abcdefghijklmnopqrstuvwxyz';
+    Random _rnd = Random();
+    final String channel = String.fromCharCodes(
+      Iterable.generate(
+        6,
+        (_) => _chars.codeUnitAt(
+          _rnd.nextInt(_chars.length),
+        ),
+      ),
+    );
+    return channel;
   }
 }
 

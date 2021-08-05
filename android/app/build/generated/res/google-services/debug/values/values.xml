@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="default_web_client_id" translatable="false">820784959909-tdmclo0kvmod3g08g2ipl4m5otsjlvat.apps.googleusercontent.com</string>
+    <string name="gcm_defaultSenderId" translatable="false">820784959909</string>
+    <string name="google_api_key" translatable="false">AIzaSyDZkYpTCc9DsOJqsLRwjQKcH5Gvx2YhybY</string>
+    <string name="google_app_id" translatable="false">1:820784959909:android:a997bfab5fe34e4989584c</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyDZkYpTCc9DsOJqsLRwjQKcH5Gvx2YhybY</string>
+    <string name="google_storage_bucket" translatable="false">agora-technical-task.appspot.com</string>
+    <string name="project_id" translatable="false">agora-technical-task</string>
+</resources>

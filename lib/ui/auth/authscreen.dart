@@ -58,7 +58,10 @@ class _AuthScreenState extends State<AuthScreen> {
                     setState(() => _isLoading = true);
                     _googleAuth
                         .signInWithGoogle()
-                        .then((value) => _googleAuth.signInUser());
+                        .then((value) => _googleAuth.signInUser())
+                        .catchError((error) {
+                      setState(() => _isLoading = false);
+                    });
                   },
                   elevation: 10,
                   padding: EdgeInsets.only(left: 30),
