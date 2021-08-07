@@ -158,20 +158,20 @@ class _EditProfileState extends State<EditProfile> {
                       ),
                     ),
                   ),
-                  SizedBox(height: height * 0.1),
+                  SizedBox(height: height * 0.08),
                   Center(
                     child: ElevatedButton(
                       onPressed: uploadData,
                       style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all(
-                          _common.purple,
+                          Colors.blue[800],
                         ),
                         padding: MaterialStateProperty.all(
-                          EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+                          EdgeInsets.symmetric(horizontal: 30, vertical: 5),
                         ),
                         shape: MaterialStateProperty.all(
                           RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(20),
                           ),
                         ),
                       ),
@@ -217,37 +217,38 @@ class _EditProfileState extends State<EditProfile> {
     try {
       List<String> downloadUrls = [];
       final currentUser = FirebaseAuth.instance.currentUser!;
-      _pickedImages.forEach((element) async {
-        await storage
-            .ref('${currentUser.email}/${element.path}')
-            .putFile(element)
-            .then((snapshot) async =>
-                downloadUrls.add(await snapshot.ref.getDownloadURL()))
-            .whenComplete(
-          () {
-            FirebaseFirestore.instance
-                .collection("users")
-                .doc(currentUser.email)
-                .update({"bio": _textEditingController.text});
-            return FirebaseFirestore.instance
-                .collection("users")
-                .doc(currentUser.email)
-                .update({
-              "images": FieldValue.arrayUnion(downloadUrls)
-            }).whenComplete(() async {
-              setState(() => _isLoading = false);
-              StreamingSharedPreferences pref = await StreamingSharedPreferences.instance;
-              pref.setBool(profileVisited, true);
-            });
-          },
-        );
-        //     .then((snapshot) async {
-        //   final url = await firebase_storage.FirebaseStorage.instance
-        //       .ref(snapshot.ref.fullPath)
-        //       .getDownloadURL();
-        //   print(url);
-        // });
-      });
+      if (_pickedImages.isNotEmpty)
+        _pickedImages.forEach((element) async {
+          await storage
+              .ref('${currentUser.email}/${element.path}')
+              .putFile(element)
+              .then((snapshot) async =>
+                  downloadUrls.add(await snapshot.ref.getDownloadURL()))
+              .whenComplete(
+            () {
+              FirebaseFirestore.instance
+                  .collection("users")
+                  .doc(currentUser.email)
+                  .update({"bio": _textEditingController.text});
+              return FirebaseFirestore.instance
+                  .collection("users")
+                  .doc(currentUser.email)
+                  .update({
+                "images": FieldValue.arrayUnion(downloadUrls)
+              }).whenComplete(() async {
+                setState(() => _isLoading = false);
+                StreamingSharedPreferences pref =
+                    await StreamingSharedPreferences.instance;
+                pref.setBool(profileVisited, true);
+              });
+            },
+          );
+        });
+      else
+        FirebaseFirestore.instance
+            .collection("users")
+            .doc(currentUser.email)
+            .update({"bio": _textEditingController.text});
     } on FirebaseException catch (e) {
       print("ERROR");
       print(e);

@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fourleggedlove/functions/api/ApiService.dart';
+import 'package:fourleggedlove/functions/auth/google_auth.dart';
 import 'package:fourleggedlove/ui/call/call.dart';
 import 'package:fourleggedlove/ui/utils/error.dart';
 import 'package:fourleggedlove/utils/common.dart';
@@ -21,6 +22,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final Common _common = Common();
   final ApiService _apiService = ApiService();
+  final FirebaseAuth instance = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +39,17 @@ class _HomeScreenState extends State<HomeScreen> {
             fontFamily: "Nexa",
           ),
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 10),
+            child: IconButton(
+              icon: Icon(Icons.exit_to_app),
+              onPressed: GoogleAuth().signOutUser,
+              color: Colors.grey.shade500,
+              iconSize: 20,
+            ),
+          ),
+        ],
       ),
       backgroundColor: _common.background,
       body: SafeArea(
@@ -46,6 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
           height: height,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -69,7 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
               SizedBox(height: 10),
-              Expanded(
+              Flexible(
                 child: StreamBuilder<QuerySnapshot>(
                   stream: FirebaseFirestore.instance
                       .collection("users")
@@ -154,6 +168,35 @@ class _HomeScreenState extends State<HomeScreen> {
                                     fontSize: 14,
                                   ),
                                 ),
+                                Visibility(
+                                  visible: documents[index][inCallWith] ==
+                                      FirebaseAuth.instance.currentUser!.email,
+                                  child: Column(
+                                    children: [
+                                      SizedBox(height: 20),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        children: [
+                                          Text(
+                                            "Incoming Call",
+                                            style: TextStyle(
+                                              fontFamily: "Poppins",
+                                              color: _common.blue,
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                          SizedBox(width: 10),
+                                          Lottie.asset(
+                                            "assets/landline.json",
+                                            fit: BoxFit.contain,
+                                            height: 30,
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -230,9 +273,8 @@ class ListHeadingRowWidget extends StatelessWidget {
             } else
               return navigateToCallPage(res, context);
           },
-          icon: (documents[index][inCallWith] != null &&
-                  documents[index][inCallWith] ==
-                      FirebaseAuth.instance.currentUser!.email)
+          icon: (documents[index][inCallWith] ==
+                  FirebaseAuth.instance.currentUser!.email)
               ? InkWell(
                   onTap: () async {
                     final res = await FirebaseFirestore.instance
@@ -242,7 +284,8 @@ class ListHeadingRowWidget extends StatelessWidget {
                     // get channel name and navigate to channel page
                     navigateToCallPage(res, context);
                   },
-                  child: Ink(
+                  child: Transform.scale(
+                    scale: 1.2,
                     child: Lottie.asset("assets/incoming_call.json",
                         fit: BoxFit.contain),
                   ),

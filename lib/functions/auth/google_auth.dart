@@ -37,10 +37,13 @@ class GoogleAuth {
           "avatarUrl": currentUser.photoURL,
           inCallWith: "",
           channelName: "",
+          "bio": ""
         });
         prefs.setInt(profileVisited, 0);
       } else
         prefs.setInt(profileVisited, 1);
     }
   }
+
+  signOutUser() => FirebaseAuth.instance.signOut();
 }

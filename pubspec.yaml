@@ -26,7 +26,9 @@ dependencies:
   firebase_storage: ^10.0.1
   agora_rtc_engine: ^4.0.6
   http: ^0.13.3
-  permission_handler: ^8.1.4+2
+  permission_handler: ^8.1.4
+  google_nav_bar: ^5.0.5
+  line_icons: ^2.0.1
 
 dev_dependencies:
   flutter_test:
@@ -46,4 +48,4 @@ flutter:
 
   assets:
     - assets/
-    - .env
+  #   - .env
