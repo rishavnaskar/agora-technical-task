@@ -37,7 +37,8 @@ class GoogleAuth {
           "avatarUrl": currentUser.photoURL,
           inCallWith: "",
           channelName: "",
-          "bio": ""
+          "bio": "",
+          "images": FieldValue.arrayUnion([]),
         });
         prefs.setInt(profileVisited, 0);
       } else

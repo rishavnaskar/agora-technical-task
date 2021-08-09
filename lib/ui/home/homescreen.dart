@@ -6,6 +6,7 @@ import 'package:fourleggedlove/functions/api/ApiService.dart';
 import 'package:fourleggedlove/functions/auth/google_auth.dart';
 import 'package:fourleggedlove/ui/call/call.dart';
 import 'package:fourleggedlove/ui/utils/error.dart';
+import 'package:fourleggedlove/ui/utils/loading.dart';
 import 'package:fourleggedlove/utils/common.dart';
 import 'package:fourleggedlove/utils/constants.dart';
 import 'package:lottie/lottie.dart';
@@ -19,13 +20,15 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen>
+    with AutomaticKeepAliveClientMixin {
   final Common _common = Common();
   final ApiService _apiService = ApiService();
   final FirebaseAuth instance = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
     return Scaffold(
@@ -40,13 +43,30 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 10),
-            child: IconButton(
-              icon: Icon(Icons.exit_to_app),
-              onPressed: GoogleAuth().signOutUser,
-              color: Colors.grey.shade500,
-              iconSize: 20,
+          TextButton(
+            onPressed: GoogleAuth().signOutUser,
+            style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "Logout",
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: Colors.grey,
+                    fontFamily: "Poppins",
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                SizedBox(width: 10),
+                Icon(
+                  Icons.exit_to_app,
+                  color: Colors.grey,
+                  size: 20,
+                ),
+                SizedBox(width: 5),
+              ],
             ),
           ),
         ],
@@ -97,7 +117,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     if (snapshot.hasError) return ErrorScreen();
                     if (snapshot.hasData) {
                       List documents = snapshot.data!.docs;
-
                       if (documents.isEmpty)
                         return Center(
                           child: Text(
@@ -111,6 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         );
                       else {
                         return ListView.separated(
+                          physics: BouncingScrollPhysics(),
                           itemCount: documents.length,
                           separatorBuilder: (context, index) => Divider(),
                           itemBuilder: (context, index) => Container(
@@ -134,7 +154,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   subtitleText[Random().nextInt(3)],
                                   textAlign: TextAlign.start,
                                   style: TextStyle(
-                                    color: Colors.grey[350],
+                                    color: Colors.white70,
                                     fontFamily: "Poppins",
                                     fontSize: 14,
                                   ),
@@ -148,24 +168,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 SizedBox(height: 20),
                                 Text(
-                                  "More about me",
-                                  textAlign: TextAlign.start,
-                                  style: TextStyle(
-                                    color: Colors.grey[350],
-                                    fontFamily: "Poppins",
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                Text(
                                   documents[index]["bio"],
                                   textAlign: TextAlign.start,
                                   maxLines: 3,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
-                                    color: _common.purple,
+                                    color: Colors.white70,
                                     fontFamily: "Poppins",
-                                    fontSize: 14,
+                                    fontSize: 12,
                                   ),
                                 ),
                                 Visibility(
@@ -179,7 +189,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             MainAxisAlignment.end,
                                         children: [
                                           Text(
-                                            "Incoming Call",
+                                            "Calling",
                                             style: TextStyle(
                                               fontFamily: "Poppins",
                                               color: _common.blue,
@@ -219,6 +229,9 @@ class _HomeScreenState extends State<HomeScreen> {
     "This is how my babies look like ☺",
     "Aren\'t they so adorable? 🥰"
   ];
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 class ListHeadingRowWidget extends StatelessWidget {
@@ -260,18 +273,28 @@ class ListHeadingRowWidget extends StatelessWidget {
         Spacer(),
         IconButton(
           onPressed: () async {
-            final res = await FirebaseFirestore.instance
-                .collection("users")
-                .doc(documents[index]["email"])
-                .get();
-            if (res.data()!.containsKey(inCallWith)) {
-              if ((res[inCallWith] as String).isEmpty)
+            Navigator.push(context,
+                CupertinoPageRoute(builder: (context) => LoadingScreen()));
+            try {
+              final res = await FirebaseFirestore.instance
+                  .collection("users")
+                  .doc(documents[index]["email"])
+                  .get();
+              if (res.data()!.containsKey(inCallWith)) {
+                if ((res[inCallWith] as String).isEmpty)
+                  return navigateToCallPage(res, context);
+                else if (res[inCallWith] !=
+                    FirebaseAuth.instance.currentUser!.email) {
+                  Navigator.pop(context);
+                  return _common.displayToast(
+                      "User already in a call", context);
+                }
+              } else
                 return navigateToCallPage(res, context);
-              else if (res[inCallWith] !=
-                  FirebaseAuth.instance.currentUser!.email)
-                return _common.displayToast("User already in a call", context);
-            } else
-              return navigateToCallPage(res, context);
+            } catch (e) {
+              Navigator.pop(context);
+              print(e);
+            }
           },
           icon: (documents[index][inCallWith] ==
                   FirebaseAuth.instance.currentUser!.email)
@@ -304,6 +327,7 @@ class ListHeadingRowWidget extends StatelessWidget {
       DocumentSnapshot<Map<String, dynamic>> res, BuildContext context) {
     if (_handleCameraAndMic() == Future.value(false)) {
       _common.displayToast("Permissions not given", context);
+      Navigator.pop(context);
       return;
     }
     late final String channel;
@@ -314,37 +338,49 @@ class ListHeadingRowWidget extends StatelessWidget {
         channel = res.get("channelName");
     } else
       channel = getChannelName();
-    res.reference.update({
-      inCallWith: FirebaseAuth.instance.currentUser!.email,
-      channelName: channel,
-    }).whenComplete(
-      () => FirebaseFirestore.instance
-          .collection("users")
-          .doc(FirebaseAuth.instance.currentUser!.email)
-          .update({
-        inCallWith: res.id,
-        channelName: channel,
-      }).whenComplete(
-        () async {
-          apiService.createAgoraToken(channel).then((value) {
-            final String? token = value["token"];
-            if (token != null)
-              Navigator.push(
-                context,
-                CupertinoPageRoute(
-                  builder: (context) => CallScreen(
-                    channelName: channel,
-                    token: token,
-                    res: res,
-                  ),
-                ),
-              );
-            else
-              print("ERROR FETCHING TOKEN");
-          });
-        },
-      ),
-    );
+    res.reference
+        .update({
+          inCallWith: FirebaseAuth.instance.currentUser!.email,
+          channelName: channel,
+        })
+        .whenComplete(
+          () => FirebaseFirestore.instance
+              .collection("users")
+              .doc(FirebaseAuth.instance.currentUser!.email)
+              .update({
+            inCallWith: res.id,
+            channelName: channel,
+          }).whenComplete(
+            () async {
+              apiService.createAgoraToken(channel).then((value) {
+                final String? token = value["token"];
+                if (token != null)
+                  Navigator.pushReplacement(
+                    context,
+                    CupertinoPageRoute(
+                      builder: (context) => CallScreen(
+                        channelName: channel,
+                        token: token,
+                        res: res,
+                      ),
+                    ),
+                  );
+                else
+                  print("ERROR FETCHING TOKEN");
+              }).catchError((err) {
+                Navigator.pop(context);
+                print(err);
+              });
+            },
+          ).catchError((err) {
+            Navigator.pop(context);
+            print(err);
+          }),
+        )
+        .catchError((err) {
+          Navigator.pop(context);
+          print(err);
+        });
   }
 
   Future<bool> _handleCameraAndMic() async {
