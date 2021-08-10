@@ -54,17 +54,16 @@ class _CallScreenState extends State<CallScreen> {
               onPressed: () => showDialog(
                 context: context,
                 builder: (context) => AlertDialog(
-                  backgroundColor: Colors.transparent.withOpacity(0.7),
+                  backgroundColor: Color(0xff31343c),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  title: Center(
-                    child: Text(
-                      "Meeting Log",
-                    ),
+                  title: Center(child: Text("Meeting Log")),
+                  titleTextStyle: TextStyle(
+                    fontFamily: "Nexa",
+                    color: _common.blue,
+                    fontSize: 20,
                   ),
-                  titleTextStyle:
-                      TextStyle(fontFamily: "Poppins", color: _common.blue),
                   contentTextStyle: TextStyle(color: Colors.blueGrey),
                   content: _panel(),
                 ),
@@ -309,12 +308,15 @@ class _CallScreenState extends State<CallScreen> {
           height: 5,
           color: Colors.transparent,
         ),
-        reverse: true,
+        shrinkWrap: true,
+        addAutomaticKeepAlives: true,
         itemCount: _infoStrings.length,
         itemBuilder: (BuildContext context, int index) {
           return Center(
             child: Text(
               _infoStrings[index],
+              textAlign: TextAlign.center,
+              style: TextStyle(fontFamily: "Poppins", color: Colors.white70),
             ),
           );
         },

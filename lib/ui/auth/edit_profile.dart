@@ -54,6 +54,7 @@ class _EditProfileState extends State<EditProfile>
                   _textEditingController.text =
                       (snapshot.data!.data() as Map)["bio"];
                 return SingleChildScrollView(
+                  physics: BouncingScrollPhysics(),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -398,6 +399,7 @@ class _EditProfileState extends State<EditProfile>
 
   showAlertDialog(BuildContext context) => showDialog(
         context: context,
+        barrierDismissible: false,
         builder: (context) {
           _isShowing = true;
           return AlertDialog(

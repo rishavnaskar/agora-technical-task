@@ -39,7 +39,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     AppName(common: _common, fontSize: 40),
                     SizedBox(height: 14),
                     Text(
-                      "A Dating app where you bring your pets too!",
+                      "A Meeting app where you bring your pets too!",
                       style: TextStyle(
                         fontFamily: "Nexa",
                         color: Colors.grey,
