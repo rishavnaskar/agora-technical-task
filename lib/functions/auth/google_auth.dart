@@ -22,7 +22,7 @@ class GoogleAuth {
   Future signInUser() async {
     final currentUser = FirebaseAuth.instance.currentUser;
     final instance = FirebaseFirestore.instance;
-    StreamingSharedPreferences prefs =
+    final StreamingSharedPreferences prefs =
         await StreamingSharedPreferences.instance;
     if (currentUser != null) {
       final matchedUsers = await instance

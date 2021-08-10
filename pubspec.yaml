@@ -29,6 +29,8 @@ dependencies:
   permission_handler: ^8.1.4
   google_nav_bar: ^5.0.5
   line_icons: ^2.0.1
+  animated_text_kit: ^4.2.1
+  modal_bottom_sheet: ^2.0.0
 
 dev_dependencies:
   flutter_test:

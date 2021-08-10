@@ -35,6 +35,7 @@ class _HomeScreenState extends State<HomeScreen>
       appBar: AppBar(
         backgroundColor: _common.background,
         elevation: 0,
+        leading: null,
         title: Text(
           "Active Users",
           style: TextStyle(
@@ -453,7 +454,7 @@ class ImagesWidget extends StatelessWidget {
               },
             ),
           ),
-          separatorBuilder: (context, i) => SizedBox(width: 10),
+          separatorBuilder: (context, i) => SizedBox(width: 30),
           itemCount: documents[index]["images"].length,
         ),
       ),
