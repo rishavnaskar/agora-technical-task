@@ -39,8 +39,7 @@ class GoogleAuth {
           channelName: "",
           "bio": "",
           "images": FieldValue.arrayUnion([]),
-        });
-        prefs.setInt(profileVisited, 0);
+        }).whenComplete(() => prefs.setInt(profileVisited, 0));
       } else
         prefs.setInt(profileVisited, 1);
     }

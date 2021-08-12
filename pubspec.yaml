@@ -14,7 +14,6 @@ dependencies:
 
   cupertino_icons: ^1.0.3
   flutter_dotenv: ^5.0.0
-  firebase_core: ^1.4.0
   firebase_auth: ^3.0.1
   lottie: ^1.1.0
   flutter_signin_button: ^2.0.0

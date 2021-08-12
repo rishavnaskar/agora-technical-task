@@ -237,6 +237,8 @@ class _EditProfileState extends State<EditProfile>
                         controller: _textEditingController,
                         maxLines: null,
                         autocorrect: true,
+                        textCapitalization: TextCapitalization.sentences,
+                        enableSuggestions: true,
                         style: TextStyle(
                           color: _common.blueLightest,
                           fontFamily: "Poppins",
@@ -325,7 +327,7 @@ class _EditProfileState extends State<EditProfile>
   uploadData() async {
     showAlertDialog(context);
     if (_textEditingController.text.isEmpty && _pickedImages.isEmpty) {
-      if (_isShowing) Navigator.pop(context);
+      Navigator.pop(context);
       return _common.displayToast("Atleast make a change first!", context);
     }
 
@@ -358,10 +360,9 @@ class _EditProfileState extends State<EditProfile>
                 if (_isShowing) Navigator.pop(context);
                 StreamingSharedPreferences pref =
                     await StreamingSharedPreferences.instance;
-                pref.setInt(profileVisited, 1);
                 _pickedImages.clear();
-                prefs.setInt(profileVisited, 1);
                 _common.displayToast("Updated profile", context);
+                pref.setInt(profileVisited, 1);
               });
             },
           );

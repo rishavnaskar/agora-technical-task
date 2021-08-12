@@ -45,7 +45,7 @@ class _HomeScreenState extends State<HomeScreen>
         ),
         actions: [
           TextButton(
-            onPressed: GoogleAuth().signOutUser,
+            onPressed:() => GoogleAuth().signOutUser(),
             style: ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
