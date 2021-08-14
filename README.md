@@ -30,6 +30,9 @@ flutter doctor
 * Clone this repository locally
 * Run ``` flutter pub get``` to fetch all packages
 * Delete **build folder** under ``` android/app``` if you find any
+* Head over to [Agora](https://sso2.agora.io/en/v4/signup/with-email), create a new account or login to your existing account
+* Create a new project and copy the App ID of that project.
+* Back to our app, create a *.env* file under project level and put ```APP_ID=your_app_ID``` in the file.
 * Run ``` flutter run ``` to run the project locally *(considering your have chrome browser installed)*
 
 ## App Demo
